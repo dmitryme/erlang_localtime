@@ -1,3 +1,2 @@
 all:
-	mkdir -p ebin
-	erl -make
+	rebar compile
