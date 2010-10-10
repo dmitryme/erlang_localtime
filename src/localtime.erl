@@ -132,8 +132,3 @@ adjust_datetime(DateTime, {Hours, Minutes}) ->
 
 invert_shift({Hours, Minutes}) ->
    {-Hours, Minutes}.
-
--ifdef(EUNIT).
--include_lib("eunit/include/eunit.hrl").
-
--endif.
