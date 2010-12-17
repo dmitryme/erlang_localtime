@@ -136,27 +136,27 @@ time_to_minutes({Hours, Minutes}) ->
 time_to_minutes({Hours, Minutes, _Seconds}) ->
    Hours * 60 + Minutes.
 
--ifdef(EUNIT).
+-ifdef(TEST).
 -include_lib("eunit/include/eunit.hrl").
 
 get_day_of_year_test() ->
    ?assertEqual(62, get_dst_day_of_year({1,wed,mar}, 2010)).
 
 check_test() ->
-   Tz = {"Europe/Moscow",{3,0},{1,0},{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
-   ?assertEqual(is_not_in_dst, local_time_dst:check({{2010, 1, 1}, {10, 10, 0}}, Tz)),
+   Tz = {"Europe/Moscow",{"MSK","MSK"},{"MSD","MSD"},{3,0},{1,0},{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
+   ?assertEqual(is_not_in_dst, localtime_dst:check({{2010, 1, 1}, {10, 10, 0}}, Tz)),
    ?assertEqual(is_in_dst, check({{2010, 7, 8}, {10, 10, 0}}, Tz)),
    ?assertEqual(is_not_in_dst, check({{2010, 3, 28}, {1, 59, 0}}, Tz)),
-   ?assertEqual(invalid_label, check({{2010, 3, 28}, {2, 00, 0}}, Tz)),
-   ?assertEqual(invalid_label, check({{2010, 3, 28}, {2, 15, 0}}, Tz)),
-   ?assertEqual(invalid_label, check({{2010, 3, 28}, {2, 30, 0}}, Tz)),
-   ?assertEqual(invalid_label, check({{2010, 3, 28}, {2, 59, 0}}, Tz)),
+   ?assertEqual(time_not_exists, check({{2010, 3, 28}, {2, 00, 0}}, Tz)),
+   ?assertEqual(time_not_exists, check({{2010, 3, 28}, {2, 15, 0}}, Tz)),
+   ?assertEqual(time_not_exists, check({{2010, 3, 28}, {2, 30, 0}}, Tz)),
+   ?assertEqual(time_not_exists, check({{2010, 3, 28}, {2, 59, 0}}, Tz)),
    ?assertEqual(is_in_dst, check({{2010, 3, 28}, {3, 00, 0}}, Tz)),
 
    ?assertEqual(is_in_dst, check({{2010, 10, 31}, {1, 59, 0}}, Tz)),
-   ?assertEqual(ambiguos, check({{2010, 10, 31}, {2, 00, 0}}, Tz)),
-   ?assertEqual(ambiguos, check({{2010, 10, 31}, {2, 10, 0}}, Tz)),
-   ?assertEqual(ambiguos, check({{2010, 10, 31}, {2, 30, 0}}, Tz)),
-   ?assertEqual(ambiguos, check({{2010, 10, 31}, {2, 59, 0}}, Tz)),
+   ?assertEqual(ambiguous_time, check({{2010, 10, 31}, {2, 00, 0}}, Tz)),
+   ?assertEqual(ambiguous_time, check({{2010, 10, 31}, {2, 10, 0}}, Tz)),
+   ?assertEqual(ambiguous_time, check({{2010, 10, 31}, {2, 30, 0}}, Tz)),
+   ?assertEqual(ambiguous_time, check({{2010, 10, 31}, {2, 59, 0}}, Tz)),
    ?assertEqual(is_not_in_dst, check({{2010, 10, 31}, {3, 00, 0}}, Tz)).
 -endif.
