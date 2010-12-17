@@ -16,6 +16,21 @@
 
 -author("Dmitry Melnikov <dmitryme@gmail.com>").
 
+% {
+%   TimeZoneName, TimeZone name, MUST be unique. It is a key
+%   {StdAbbr, StdName}, name/abbreviations of timezone before daylight shift
+%   {DstAbbr, DstName}, name/abbreviations of timezone after daylight shift
+%   {Hour, Min}, GMT offset. Number of hours added to uts to get the local time. W/o daylight savings
+%   {Hour, Min}, daylight saving. Adjustment for GMT offset, when daylight saving is on
+%   {NthWeekday, Weekday, Month}, daylight saving transition rule. Can be undef if no daylight saving rule specified
+%      NthWeekday - 1(first week),2(second week),3(...),4(...),5(...),-1(last week)
+%      Weekday - sun,mon,tue,wed,thu,fri,sat
+%      Month - jan,deb,mar,apr,may,jun,jul,aug,sep,oct,mov,dec
+%   {Hour, Min} - time of daylight saving transition
+%   {NthWeekday, Weekday, Month} - transition back to std. Can be undef if no daylight saving rule specified
+%   {Hour, Min} - time of transition to std.
+% }
+
 -define(tz_database,
    [
       {"Africa/Abidjan",{"GMT","GMT"},undef,{0,0},{0,0},undef,{0,0},undef,{0,0}},
