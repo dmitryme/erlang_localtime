@@ -131,6 +131,8 @@ day_to_int(fri) -> 5;
 day_to_int(sat) -> 6;
 day_to_int(sun) -> 7.
 
+time_to_minutes({Hours, Minutes}) ->
+   Hours * 60 + Minutes;
 time_to_minutes({Hours, Minutes, _Seconds}) ->
    Hours * 60 + Minutes.
 
@@ -141,7 +143,7 @@ get_day_of_year_test() ->
    ?assertEqual(62, get_dst_day_of_year({1,wed,mar}, 2010)).
 
 check_test() ->
-   Tz = {"Europe/Moscow",{"MSK","MSK"},{"MSD","MSD"},{3,0},{1,0},{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
+   Tz = {"Europe/Moscow",{"MSK","MSK"},{"MSD","MSD"},180,60,{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
    ?assertEqual(is_not_in_dst, localtime_dst:check({{2010, 1, 1}, {10, 10, 0}}, Tz)),
    ?assertEqual(is_in_dst, check({{2010, 7, 8}, {10, 10, 0}}, Tz)),
    ?assertEqual(is_not_in_dst, check({{2010, 3, 28}, {1, 59, 0}}, Tz)),

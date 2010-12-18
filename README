@@ -1,9 +1,10 @@
 This library contains four exported methods:
 
-* utc_to_local(DateTime, Timezone)
-* local_to_utc(DateTime, Timezone)
-* local_to_local(DateTime, TimezoneFrom, TimezoneTo)
-* tz_name(DateTime, Timezone)
+* utc_to_local(DateTime, Timezone) - converts UTC time to local according to specified Timezone
+* local_to_utc(DateTime, Timezone) - converts local time to UTC
+* local_to_local(DateTime, TimezoneFrom, TimezoneTo) - converts local time to local
+* tz_name(DateTime, Timezone) - returns a timezone name (E.g. MSK, MSD, etc)
+* tz_shift(DateTime, Timezone) - return shift from local datetime to GMT
 Where
 DateTime = {date(), time()}
 TimeZone(To, From) = String(). E.g. “Europe/Moscow”, “America/NewYork”
