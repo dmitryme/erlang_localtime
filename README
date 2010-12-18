@@ -8,6 +8,6 @@ This library contains next public exported methods:
 * tz_shift(DateTime, TimezoneFrom, TimezoneTo) - returns shift from local datetime to required timezone
 Where
 DateTime = {date(), time()}
-TimeZone(To, From) = String(). E.g. “Europe/Moscow”, “America/NewYork”. Or abbreviation "MSK", "MSD", etc. Note:
+TimeZone(To, From) = String(). E.g. “Europe/Moscow”, “America/NewYork”. Or abbreviations "MSK", "MSD", etc. Note:
 abbreviation is just used to find appropriate timezone name. If you want to convert "MSK" -> "PDT", but source timezone
 is not in daylight saving, it will be corrected by library and "MSK" -> "PST" conversion will be made.
