@@ -17,7 +17,8 @@
 
 -author("Dmitry Melnikov <dmitryme@gmail.com>").
 
--include("include/tz_database.hrl").
+-include("tz_database.hrl").
+-include("tz_index.hrl").
 
 -export(
   [
@@ -34,7 +35,7 @@
 %  LocalDateTime = DateTime()
 %  ErrDescr = unknown_tz
 utc_to_local(UtcDateTime, Timezone) ->
-   case lists:keyfind(Timezone, 1, ?tz_database) of
+   case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
          {error, unknown_tz};
       {_Tz, _, _, Shift, _DstShift, undef, _DstStartTime, undef, _DstEndTime} ->
@@ -63,7 +64,7 @@ utc_to_local(UtcDateTime, Timezone) ->
 %  UtcDateTime = DateTime()
 %  ErrDescr = unknown_tz
 local_to_utc(LocalDateTime, Timezone) ->
-   case lists:keyfind(Timezone, 1, ?tz_database) of
+   case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
          {error, unknown_tz};
       {_Tz, _, _, Shift, _DstShift, undef, _DstStartTime, undef, _DstEndTime} ->
@@ -104,7 +105,7 @@ local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) ->
 tz_name(_UtcDateTime, "UTC") ->
    {"UTC", "UTC"};
 tz_name(LocalDateTime, Timezone) ->
-   case lists:keyfind(Timezone, 1, ?tz_database) of
+   case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
          {error, unknown_tz};
       {_Tz, StdName, undef, _Shift, _DstShift, undef, _DstStartTime, undef, _DstEndTime} ->
@@ -133,7 +134,7 @@ tz_name(LocalDateTime, Timezone) ->
 tz_shift(_UtcDateTime, "UTC") ->
    0;
 tz_shift(LocalDateTime, Timezone) ->
-   case lists:keyfind(Timezone, 1, ?tz_database) of
+   case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
          {error, unknown_tz};
       {_Tz, _StdName, undef, Shift, _DstShift, undef, _DstStartTime, undef, _DstEndTime} ->
@@ -162,3 +163,11 @@ fmt_min(Shift) when Shift < 0 ->
    {'-', abs(Shift) div 60, abs(Shift) rem 60};
 fmt_min(Shift) ->
    {'+', Shift div 60, Shift rem 60}.
+
+get_timezone(TimeZone) ->
+   case dict:find(TimeZone, ?tz_index)  of
+      error ->
+         TimeZone;
+      {ok, [TZName | _]} ->
+            TZName
+   end.
