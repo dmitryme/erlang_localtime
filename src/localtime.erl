@@ -27,6 +27,7 @@
      ,local_to_local/3
      ,tz_name/2
      ,tz_shift/2
+     ,tz_shift/3
   ]).
 
 % utc_to_local(UtcDateTime, Timezone) -> LocalDateTime | {error, ErrDescr}
@@ -138,7 +139,7 @@ tz_shift(LocalDateTime, Timezone) ->
       false ->
          {error, unknown_tz};
       {_Tz, _StdName, undef, Shift, _DstShift, undef, _DstStartTime, undef, _DstEndTime} ->
-         Shift;
+         fmt_min(Shift);
       TzRule = {_, _StdName, _DstName, Shift, DstShift, _, _, _, _} ->
          case localtime_dst:check(LocalDateTime, TzRule) of
             is_in_dst ->
@@ -152,6 +153,12 @@ tz_shift(LocalDateTime, Timezone) ->
          end
    end.
 
+tz_shift(LocalDateTime, TimezoneFrom, TimezoneTo) ->
+   FromShift = fmt_shift(tz_shift(LocalDateTime, TimezoneFrom)),
+   DateTimeTo = localtime:local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo),
+   ToShift = fmt_shift(tz_shift(DateTimeTo, TimezoneTo)),
+   fmt_min(ToShift-FromShift).
+
 adjust_datetime(DateTime, Minutes) ->
    Seconds = calendar:datetime_to_gregorian_seconds(DateTime) + Minutes * 60,
    calendar:gregorian_seconds_to_datetime(Seconds).
@@ -163,6 +170,11 @@ fmt_min(Shift) when Shift < 0 ->
    {'-', abs(Shift) div 60, abs(Shift) rem 60};
 fmt_min(Shift) ->
    {'+', Shift div 60, Shift rem 60}.
+
+fmt_shift({'+', H, M}) ->
+   H * 60 + M;
+fmt_shift({'-', H, M}) ->
+   -(H * 60 + M).
 
 get_timezone(TimeZone) ->
    case dict:find(TimeZone, ?tz_index)  of

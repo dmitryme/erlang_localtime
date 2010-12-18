@@ -5,6 +5,7 @@ This library contains next public exported methods:
 * local_to_local(DateTime, TimezoneFrom, TimezoneTo) - converts local time to local
 * tz_name(DateTime, Timezone) - returns a timezone name (E.g. MSK, MSD, etc)
 * tz_shift(DateTime, Timezone) - returns shift from local datetime to GMT
+* tz_shift(DateTime, TimezoneFrom, TimezoneTo) - returns shift from local datetime to required timezone
 Where
 DateTime = {date(), time()}
 TimeZone(To, From) = String(). E.g. “Europe/Moscow”, “America/NewYork”. Or abbreviation "MSK", "MSD", etc. Note:
