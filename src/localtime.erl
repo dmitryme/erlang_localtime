@@ -25,6 +25,7 @@
      ,local_to_utc/2
      ,local_to_local/3
      ,tz_name/2
+     ,tz_shift/2
   ]).
 
 % utc_to_local(UtcDateTime, Timezone) -> LocalDateTime | {error, ErrDescr}
@@ -121,14 +122,43 @@ tz_name(LocalDateTime, Timezone) ->
          end
    end.
 
-adjust_datetime(DateTime, {Hours, Minutes}) ->
-   Seconds = calendar:datetime_to_gregorian_seconds(DateTime) + Hours * 3600,
-   case Hours < 0 of
-      true ->
-         calendar:gregorian_seconds_to_datetime(Seconds - Minutes * 60);
+% tz_shift(LocalDateTime, Timezone) ->  Shift | {Shift, DstSift} | unable_to_detect
+%  returns time shift from GMT
+%  LocalDateTime = DateTime()
+%  Timezone = String()
+%  Shift = DstShift = {Sign, Hours, Minutes}
+%  Sign = term(), '+', '-'
+%  Hours = Minutes = Integer(),
+%  {Shift, DstShift} - returns, when shift is ambiguous
+tz_shift(_UtcDateTime, "UTC") ->
+   0;
+tz_shift(LocalDateTime, Timezone) ->
+   case lists:keyfind(Timezone, 1, ?tz_database) of
       false ->
-         calendar:gregorian_seconds_to_datetime(Seconds + Minutes * 60)
+         {error, unknown_tz};
+      {_Tz, _StdName, undef, Shift, _DstShift, undef, _DstStartTime, undef, _DstEndTime} ->
+         Shift;
+      TzRule = {_, _StdName, _DstName, Shift, DstShift, _, _, _, _} ->
+         case localtime_dst:check(LocalDateTime, TzRule) of
+            is_in_dst ->
+               fmt_min(Shift + DstShift);
+            is_not_in_dst ->
+               fmt_min(Shift);
+            ambiguous_time ->
+               {fmt_min(Shift), fmt_min(Shift + DstShift)};
+            time_not_exists ->
+               unable_to_detect
+         end
    end.
 
-invert_shift({Hours, Minutes}) ->
-   {-Hours, Minutes}.
+adjust_datetime(DateTime, Minutes) ->
+   Seconds = calendar:datetime_to_gregorian_seconds(DateTime) + Minutes * 60,
+   calendar:gregorian_seconds_to_datetime(Seconds).
+
+invert_shift(Minutes) ->
+   -Minutes.
+
+fmt_min(Shift) when Shift < 0 ->
+   {'-', abs(Shift) div 60, abs(Shift) rem 60};
+fmt_min(Shift) ->
+   {'+', Shift div 60, Shift rem 60}.

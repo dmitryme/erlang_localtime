@@ -35,9 +35,9 @@ check({Date = {Year, _, _},Time}, {_, _, _, _Shift, DstShift, DstStartRule, DstS
    CurrDay = get_day_of_year(Date),
    case is_dst_date(DstStartDay, DstEndDay, CurrDay) of
       equal_to_start ->
-         is_dst_start_time(time_to_minutes(Time), time_to_minutes(DstStartTime), time_to_minutes(DstShift));
+         is_dst_start_time(time_to_minutes(Time), time_to_minutes(DstStartTime), DstShift);
       equal_to_end ->
-         is_dst_end_time(time_to_minutes(Time), time_to_minutes(DstEndTime), time_to_minutes(DstShift));
+         is_dst_end_time(time_to_minutes(Time), time_to_minutes(DstEndTime), DstShift);
       Res ->
          Res
    end.
@@ -131,8 +131,6 @@ day_to_int(fri) -> 5;
 day_to_int(sat) -> 6;
 day_to_int(sun) -> 7.
 
-time_to_minutes({Hours, Minutes}) ->
-   Hours * 60 + Minutes;
 time_to_minutes({Hours, Minutes, _Seconds}) ->
    Hours * 60 + Minutes.
 
