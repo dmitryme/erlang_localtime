@@ -24,8 +24,8 @@
 %   DstMin = Integer(), daylight saving. Adjustment for GMT offset, when daylight saving is on
 %   DstStartDay = {NthWeekday, Weekday, Month}, daylight saving transition rule. Can be undef if no daylight saving rule specified
 %     NthWeekday = Integer(), 1(first week),2(second week),3(...),4(...),5(...),-1(last week)
-%     Weekday = term(),  sun,mon,tue,wed,thu,fri,sat
-%     Month = term(),  jan,deb,mar,apr,may,jun,jul,aug,sep,oct,mov,dec
+%     Weekday = atom(),  sun,mon,tue,wed,thu,fri,sat
+%     Month = atom(),  jan,deb,mar,apr,may,jun,jul,aug,sep,oct,mov,dec
 %   DstStartTime = {Hour, Min} - time of daylight saving transition
 %     Hour = Integer(), [0..23]
 %     Min = Integer(), [0..59]
