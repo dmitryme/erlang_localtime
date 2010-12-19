@@ -34,7 +34,7 @@
 %  UtcDateTime = DateTime()
 %  Timezone = String()
 %  LocalDateTime = DateTime()
-%  ErrDescr = unknown_tz
+%  ErrDescr = atom(), unknown_tz
 utc_to_local(UtcDateTime, Timezone) ->
    case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
@@ -63,7 +63,7 @@ utc_to_local(UtcDateTime, Timezone) ->
 %  LocalDateTime = DateTime()
 %  Timezone = String()
 %  UtcDateTime = DateTime()
-%  ErrDescr = unknown_tz
+%  ErrDescr = atom(), unknown_tz
 local_to_utc(LocalDateTime, Timezone) ->
    case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
@@ -86,7 +86,7 @@ local_to_utc(LocalDateTime, Timezone) ->
 %  LocalDateTime = DateTime()
 %  TimezoneFrom = String()
 %  TimezoneTo = String()
-%  ErrDescr = unknown_tz
+%  ErrDescr = atom(), unknown_tz
 local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) ->
    case local_to_utc(LocalDateTime, TimezoneFrom) of
       Date = {{_,_,_},{_,_,_}} ->
@@ -95,7 +95,7 @@ local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) ->
          Res
    end.
 
-% tz_name(DateTime(), Timezone) -> {Abbr, Name} | {{StdAbbr, StdName}, {DstAbbr, DstName}} | unable_to_detect
+% tz_name(DateTime(), Timezone) -> {Abbr, Name} | {{StdAbbr, StdName}, {DstAbbr, DstName}} | unable_to_detect | {error, ErrDesc}
 %  Timezone = String()
 %  Abbr = String()
 %  Name = String()
@@ -103,6 +103,7 @@ local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) ->
 %  StdName = String()
 %  DstAbbr = String()
 %  DstName = String()
+%  ErrDesc = atom(), unknown_tz
 tz_name(_UtcDateTime, "UTC") ->
    {"UTC", "UTC"};
 tz_name(LocalDateTime, Timezone) ->
@@ -124,7 +125,7 @@ tz_name(LocalDateTime, Timezone) ->
          end
    end.
 
-% tz_shift(LocalDateTime, Timezone) ->  Shift | {Shift, DstSift} | unable_to_detect
+% tz_shift(LocalDateTime, Timezone) ->  Shift | {Shift, DstSift} | unable_to_detect | {error, ErrDesc}
 %  returns time shift from GMT
 %  LocalDateTime = DateTime()
 %  Timezone = String()
@@ -132,6 +133,7 @@ tz_name(LocalDateTime, Timezone) ->
 %  Sign = term(), '+', '-'
 %  Hours = Minutes = Integer(),
 %  {Shift, DstShift} - returns, when shift is ambiguous
+%  ErrDesc = atom(), unknown_tz
 tz_shift(_UtcDateTime, "UTC") ->
    0;
 tz_shift(LocalDateTime, Timezone) ->
@@ -153,11 +155,23 @@ tz_shift(LocalDateTime, Timezone) ->
          end
    end.
 
+% the same as tz_shift/2, but calculates time difference between two local timezones
 tz_shift(LocalDateTime, TimezoneFrom, TimezoneTo) ->
-   FromShift = fmt_shift(tz_shift(LocalDateTime, TimezoneFrom)),
-   DateTimeTo = localtime:local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo),
-   ToShift = fmt_shift(tz_shift(DateTimeTo, TimezoneTo)),
-   fmt_min(ToShift-FromShift).
+   F = fun() ->
+      FromShift = fmt_shift(tz_shift(LocalDateTime, TimezoneFrom)),
+      DateTimeTo = localtime:local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo),
+      ToShift = fmt_shift(tz_shift(DateTimeTo, TimezoneTo)),
+      fmt_min(ToShift-FromShift)
+   end,
+   try F()
+   catch
+      _:Err ->
+         Err
+   end.
+
+% =======================================================================
+% privates
+% =======================================================================
 
 adjust_datetime(DateTime, Minutes) ->
    Seconds = calendar:datetime_to_gregorian_seconds(DateTime) + Minutes * 60,
@@ -174,7 +188,9 @@ fmt_min(Shift) ->
 fmt_shift({'+', H, M}) ->
    H * 60 + M;
 fmt_shift({'-', H, M}) ->
-   -(H * 60 + M).
+   -(H * 60 + M);
+fmt_shift(Any) ->
+   throw(Any).
 
 get_timezone(TimeZone) ->
    case dict:find(TimeZone, ?tz_index)  of
