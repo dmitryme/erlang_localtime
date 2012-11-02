@@ -1,5 +1,4 @@
-Public exports
-==============
+#### Public exports
 
 * utc_to_local(DateTime, Timezone) - converts UTC time to local according to specified Timezone
 * local_to_utc(DateTime, Timezone) - converts local time to UTC
