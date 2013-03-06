@@ -1,3 +1,5 @@
+%% vim: ts=4 sw=4 et
+%%
 %% Copyright (C) 07/01/2010 Dmitry S. Melnikov (dmitryme@gmail.com)
 %%
 %% This program is free software; you can redistribute it and/or
@@ -13,6 +15,7 @@
 %% You should have received a copy of the GNU General Public License
 %% along with this program; if not, write to the Free Software
 %% Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+%%
 -module(localtime).
 
 -author("Dmitry Melnikov <dmitryme@gmail.com>").
@@ -29,6 +32,9 @@
      ,tz_name/2
      ,tz_shift/2
      ,tz_shift/3
+     ,get_timezone/1
+     ,list_timezones/0
+     ,adjust_datetime/2
   ]).
 
 % utc_to_local(UtcDateTime, Timezone) -> LocalDateTime | [LocalDateTime, DstLocalDateTime] | {error, ErrDescr}
@@ -197,13 +203,25 @@ tz_shift(LocalDateTime, TimezoneFrom, TimezoneTo) ->
          Err
    end.
 
-% =======================================================================
-% privates
-% =======================================================================
+get_timezone(TimeZone) ->
+   case dict:find(TimeZone, ?tz_index)  of
+      error ->
+         TimeZone;
+      {ok, [TZName | _]} ->
+            TZName
+    end.
+
+list_timezones() ->
+    dict:fetch_keys(?tz_index).
 
 adjust_datetime(DateTime, Minutes) ->
    Seconds = calendar:datetime_to_gregorian_seconds(DateTime) + Minutes * 60,
    calendar:gregorian_seconds_to_datetime(Seconds).
+
+% =======================================================================
+% privates
+% =======================================================================
+
 
 invert_shift(Minutes) ->
    -Minutes.
@@ -220,10 +238,3 @@ fmt_shift({'-', H, M}) ->
 fmt_shift(Any) ->
    throw(Any).
 
-get_timezone(TimeZone) ->
-   case dict:find(TimeZone, ?tz_index)  of
-      error ->
-         TimeZone;
-      {ok, [TZName | _]} ->
-            TZName
-   end.
