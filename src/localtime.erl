@@ -26,6 +26,7 @@
      ,local_to_utc/2
      ,local_to_utc_dst/2
      ,local_to_local/3
+     ,local_to_local_dst/3
      ,tz_name/2
      ,tz_shift/2
      ,tz_shift/3
@@ -103,6 +104,19 @@ local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) ->
       Res ->
          Res
    end.
+
+local_to_local_dst(LocalDateTime, TimezoneFrom, TimezoneTo) ->
+   case local_to_utc_dst(LocalDateTime, TimezoneFrom) of
+      Date = {{_,_,_},{_,_,_}} ->
+         io:format("ha", []),
+         utc_to_local(Date, TimezoneTo);
+      [FirstDate, SecondDate] ->
+         [utc_to_local(FirstDate, TimezoneTo), utc_to_local(SecondDate, TimezoneTo)];
+      Res ->
+         io:format("Blah", []),
+         Res
+   end.
+
 
 % tz_name(DateTime(), Timezone) -> {Abbr, Name} | {{StdAbbr, StdName}, {DstAbbr, DstName}} | unable_to_detect | {error, ErrDesc}
 %  Timezone = String()
