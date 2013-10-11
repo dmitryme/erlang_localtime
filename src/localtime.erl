@@ -108,12 +108,10 @@ local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) ->
 local_to_local_dst(LocalDateTime, TimezoneFrom, TimezoneTo) ->
    case local_to_utc_dst(LocalDateTime, TimezoneFrom) of
       Date = {{_,_,_},{_,_,_}} ->
-         io:format("ha", []),
          utc_to_local(Date, TimezoneTo);
       [FirstDate, SecondDate] ->
          [utc_to_local(FirstDate, TimezoneTo), utc_to_local(SecondDate, TimezoneTo)];
       Res ->
-         io:format("Blah", []),
          Res
    end.
 
