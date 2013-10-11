@@ -24,6 +24,7 @@
   [
      utc_to_local/2
      ,local_to_utc/2
+     ,local_to_utc_dst/2
      ,local_to_local/3
      ,tz_name/2
      ,tz_shift/2
@@ -65,6 +66,12 @@ utc_to_local(UtcDateTime, Timezone) ->
 %  UtcDateTime = DateTime()
 %  ErrDescr = atom(), unknown_tz
 local_to_utc(LocalDateTime, Timezone) ->
+   case local_to_utc_dst(LocalDateTime, Timezone) of
+      [_FirstDate, SecondDate | []] -> SecondDate;
+      Val -> Val
+   end.
+
+local_to_utc_dst(LocalDateTime, Timezone) ->
    case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
          {error, unknown_tz};
@@ -75,8 +82,10 @@ local_to_utc(LocalDateTime, Timezone) ->
          case localtime_dst:check(LocalDateTime, TzRule) of
             is_in_dst ->
                adjust_datetime(UtcDateTime, invert_shift(DstShift));
-            Res when (Res == is_not_in_dst) or (Res == ambiguous_time) ->
+            Res when (Res == is_not_in_dst) ->
                UtcDateTime;
+            Res when (Res == ambiguous_time) ->
+               [adjust_datetime(UtcDateTime, invert_shift(DstShift)), UtcDateTime];
             time_not_exists ->
                time_not_exists
          end
