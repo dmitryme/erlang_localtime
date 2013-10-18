@@ -30,10 +30,11 @@
      ,tz_shift/3
   ]).
 
-% utc_to_local(UtcDateTime, Timezone) -> LocalDateTime | {error, ErrDescr}
+% utc_to_local(UtcDateTime, Timezone) -> LocalDateTime | [LocalDateTime, DstLocalDateTime] | {error, ErrDescr}
 %  UtcDateTime = DateTime()
 %  Timezone = String()
 %  LocalDateTime = DateTime()
+%  DstLocalDateTime = DateTime()
 %  ErrDescr = atom(), unknown_tz
 utc_to_local(UtcDateTime, Timezone) ->
    case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
@@ -49,20 +50,15 @@ utc_to_local(UtcDateTime, Timezone) ->
             is_not_in_dst ->
                LocalDateTime;
             ambiguous_time ->
-               RecheckIt = adjust_datetime(LocalDateTime, DstShift),
-               case localtime_dst:check(RecheckIt, TzRule) of
-                  ambiguous_time ->
-                     RecheckIt;
-                  _ ->
-                     LocalDateTime
-               end
+               [LocalDateTime, adjust_datetime(LocalDateTime, DstShift)]
          end
    end.
 
-% local_to_utc(LocalDateTime, Timezone) -> UtcDateTime | tim_not_exists | {error, ErrDescr}
+% local_to_utc(LocalDateTime, Timezone) -> UtcDateTime | [UtcDateTime, DstUtcDateTime] | time_not_exists | {error, ErrDescr}
 %  LocalDateTime = DateTime()
 %  Timezone = String()
 %  UtcDateTime = DateTime()
+%  DstUtcDateTime = DateTime()
 %  ErrDescr = atom(), unknown_tz
 local_to_utc(LocalDateTime, Timezone) ->
    case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
@@ -75,14 +71,16 @@ local_to_utc(LocalDateTime, Timezone) ->
          case localtime_dst:check(LocalDateTime, TzRule) of
             is_in_dst ->
                adjust_datetime(UtcDateTime, invert_shift(DstShift));
-            Res when (Res == is_not_in_dst) or (Res == ambiguous_time) ->
+            is_not_in_dst ->
                UtcDateTime;
+            ambiguous_time ->
+               [UtcDateTime, adjust_datetime(UtcDateTime, invert_shift(DstShift))];
             time_not_exists ->
                time_not_exists
          end
    end.
 
-% local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) -> LocalDateTime | tim_not_exists | {error, ErrDescr}
+% local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) -> LocalDateTime | ambiguous | time_not_exists | {error, ErrDescr}
 %  LocalDateTime = DateTime()
 %  TimezoneFrom = String()
 %  TimezoneTo = String()
@@ -91,6 +89,8 @@ local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) ->
    case local_to_utc(LocalDateTime, TimezoneFrom) of
       Date = {{_,_,_},{_,_,_}} ->
          utc_to_local(Date, TimezoneTo);
+      [{{_,_,_},{_,_,_}},{{_,_,_},{_,_,_}}] ->
+         ambiguous;
       Res ->
          Res
    end.
