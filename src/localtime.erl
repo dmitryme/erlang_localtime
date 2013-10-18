@@ -25,6 +25,7 @@
      utc_to_local/2
      ,local_to_utc/2
      ,local_to_local/3
+     ,local_to_local_dst/3
      ,tz_name/2
      ,tz_shift/2
      ,tz_shift/3
@@ -87,12 +88,39 @@ local_to_utc(LocalDateTime, Timezone) ->
 %  ErrDescr = atom(), unknown_tz
 local_to_local(LocalDateTime, TimezoneFrom, TimezoneTo) ->
    case local_to_utc(LocalDateTime, TimezoneFrom) of
-      Date = {{_,_,_},{_,_,_}} ->
-         utc_to_local(Date, TimezoneTo);
-      [{{_,_,_},{_,_,_}},{{_,_,_},{_,_,_}}] ->
-         ambiguous;
+      UtcDateTime = {{_,_,_},{_,_,_}} ->
+         LocalDateTime2 = utc_to_local(UtcDateTime, TimezoneTo);
+      [UtcDateTime, {{_,_,_},{_,_,_}}] ->
+         LocalDateTime2 = utc_to_local(UtcDateTime, TimezoneTo);
       Res ->
-         Res
+         LocalDateTime2 = Res
+   end,
+   case LocalDateTime2 of
+      [DateTimeToReturn, {{_,_,_},{_,_,_}}] ->
+         DateTimeToReturn;
+      Other ->
+         Other
+   end.
+
+% local_to_local_dst(LocalDateTime, TimezoneFrom, TimezoneTo) -> LocalDateTime | ambiguous | time_not_exists | {error, ErrDescr}
+%  LocalDateTime = DateTime()
+%  TimezoneFrom = String()
+%  TimezoneTo = String()
+%  ErrDescr = atom(), unknown_tz
+local_to_local_dst(LocalDateTime, TimezoneFrom, TimezoneTo) ->
+   case local_to_utc(LocalDateTime, TimezoneFrom) of
+      UtcDateTime = {{_,_,_},{_,_,_}} ->
+         LocalDateTime2 = utc_to_local(UtcDateTime, TimezoneTo);
+      [{{_,_,_},{_,_,_}}, UtcDateTime] ->
+         LocalDateTime2 = utc_to_local(UtcDateTime, TimezoneTo);
+      Res ->
+         LocalDateTime2 = Res
+   end,
+   case LocalDateTime2 of
+      [{{_,_,_},{_,_,_}}, DateTimeToReturn] ->
+         DateTimeToReturn;
+      Other ->
+         Other
    end.
 
 % tz_name(DateTime(), Timezone) -> {Abbr, Name} | {{StdAbbr, StdName}, {DstAbbr, DstName}} | unable_to_detect | {error, ErrDesc}
