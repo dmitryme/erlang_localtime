@@ -339,7 +339,7 @@
       {"Europe/Luxembourg",{"CET","CET"},{"CEST","CEST"},60,60,{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
       {"Europe/Madrid",{"CET","CET"},{"CEST","CEST"},60,60,{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
       {"Europe/Malta",{"CET","CET"},{"CEST","CEST"},60,60,{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
-      {"Europe/Minsk",{"EET","EET"},{"EEST","EEST"},120,60,{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
+      {"Europe/Minsk",{"FET","FET"},undef,180,0,undef,{0,0},undef,{0,0}},
       {"Europe/Monaco",{"CET","CET"},{"CEST","CEST"},60,60,{last,sun,mar},{2,0},{last,sun,oct},{3,0}},
       {"Europe/Moscow",{"MSK","MSK"},undef,240,0,undef,{0,0},undef,{0,0}},
       {"Europe/Nicosia",{"EET","EET"},{"EEST","EEST"},120,60,{last,sun,mar},{3,0},{last,sun,oct},{4,0}},
