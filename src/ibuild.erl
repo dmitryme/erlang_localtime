@@ -1,6 +1,6 @@
 -module(ibuild).
 
--export([build_index/0]).
+-export([build_index/0, main/1]).
 
 -include("tz_database.hrl").
 
@@ -22,3 +22,7 @@ build_index() ->
    I = lists:foldl(F, dict:new(), ?tz_database),
    {ok, File} = file:open("tz_index.hrl", [write]),
    io:fwrite(File, "-define(tz_index, ~p).", [I]).
+
+%% So this can be run from escript:
+main(_Args) ->
+   build_index().
