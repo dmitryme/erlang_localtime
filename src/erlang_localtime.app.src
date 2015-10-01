@@ -4,5 +4,6 @@
   {applications, [kernel, stdlib]},
   {vsn, "1.0"},
   {registered, []},
-  {env, []}
+  {env, []},
+  {applications, []}
  ]}.
