@@ -17,6 +17,9 @@
      ,tz_name/2
      ,tz_shift/2
      ,tz_shift/3
+     ,get_timezone/1
+     ,list_timezones/0
+     ,adjust_datetime/2
   ]).
 
 % utc_to_local(UtcDateTime, Timezone) -> LocalDateTime | [LocalDateTime, DstLocalDateTime] | {error, ErrDescr}
@@ -185,13 +188,19 @@ tz_shift(LocalDateTime, TimezoneFrom, TimezoneTo) ->
          Err
    end.
 
-% =======================================================================
-% privates
-% =======================================================================
-
 adjust_datetime(DateTime, Minutes) ->
    Seconds = calendar:datetime_to_gregorian_seconds(DateTime) + Minutes * 60,
    calendar:gregorian_seconds_to_datetime(Seconds).
+
+get_timezone(TimeZone) ->
+    get_timezone_inner(TimeZone).
+
+list_timezones() ->
+    dict:fetch_keys(?tz_index).
+
+% =======================================================================
+% privates
+% =======================================================================
 
 invert_shift(Minutes) ->
    -Minutes.
@@ -222,7 +231,7 @@ tr_char([H|T], From, To, Acc) ->
    end.
 
 -define(SPACE_CHAR, 32).
-get_timezone(TimeZone) ->
+get_timezone_inner(TimeZone) ->
    TimeZoneNoSpaces = tr_char(TimeZone, ?SPACE_CHAR, $_),
    case dict:find(TimeZoneNoSpaces, ?tz_index)  of
       error ->
