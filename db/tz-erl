@@ -292,7 +292,10 @@ sub zone_line {
     $rule1 = $rule2 = RULE_NULL;
   } elsif (scalar(@rules) == 1) {
     # One active rule.  This is a year that DST started or stopped
-    # being observed
+    # being observed.  erlang_localtime doesn't handle this.  If DST
+    # stopped being observed in this year, don't output a DST rule.
+    # If DST started being observed, do.  (Except that we don't handle
+    # this yet.)
     print STDERR Data::Dump::dump(\@rules), "\n";
     die "one rule for $name";
     $name1 = zonename($format, $rules[0]->[RULE_LETTERS], undef);
