@@ -145,15 +145,17 @@ sub process_data {
   }
 }
 
+# Converts an offset in the format "[+-]?HH:MM" or "[+-]?HH" into minutes.
+# For example, "2:00" -> 120, "-0:30" -> -30, "+5" -> 300.
 sub offset_minutes {
   my ($off, $adj) = @_;
 
   my $convert_offset = sub {
-    my $m = $_[0];
-    if ($m =~ m/^([\+\-]?)(?:(\d+):)?(\d+)$/) {
-      $m = (defined $2 ? $2 : 0) * MPH + $3;
-      if ($1 eq '-') { $m = -$m; }
-    }
+    $_[0] =~ m/^([\+\-]?)(\d+)(?::(\d+))?$/
+      or die "offset \"$_[0]\" did not match";
+    my $m = $2 * MPH;
+    if (defined $3) { $m += $3; }
+    if ($1 eq '-') { $m = -$m; }
     return $m;
   };
 
