@@ -154,7 +154,7 @@ tz_name(LocalDateTime, Timezone) ->
 %  {Shift, DstShift} - returns, when shift is ambiguous
 %  ErrDesc = atom(), unknown_tz
 tz_shift(_UtcDateTime, "UTC") ->
-   0;
+   {'+', 0, 0};
 tz_shift(LocalDateTime, Timezone) ->
    case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
