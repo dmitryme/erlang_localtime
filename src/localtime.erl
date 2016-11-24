@@ -123,8 +123,6 @@ local_to_local_dst(LocalDateTime, TimezoneFrom, TimezoneTo) ->
 %  DstAbbr = String()
 %  DstName = String()
 %  ErrDesc = atom(), unknown_tz
-tz_name(_UtcDateTime, "UTC") ->
-   {"UTC", "UTC"};
 tz_name(LocalDateTime, Timezone) ->
    case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
@@ -153,8 +151,6 @@ tz_name(LocalDateTime, Timezone) ->
 %  Hours = Minutes = Integer(),
 %  {Shift, DstShift} - returns, when shift is ambiguous
 %  ErrDesc = atom(), unknown_tz
-tz_shift(_UtcDateTime, "UTC") ->
-   {'+', 0, 0};
 tz_shift(LocalDateTime, Timezone) ->
    case lists:keyfind(get_timezone(Timezone), 1, ?tz_database) of
       false ->
