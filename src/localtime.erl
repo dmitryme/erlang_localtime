@@ -210,6 +210,8 @@ fmt_shift({'+', H, M}) ->
    H * 60 + M;
 fmt_shift({'-', H, M}) ->
    -(H * 60 + M);
+fmt_shift(0) ->
+   0;
 fmt_shift(Any) ->
    throw(Any).
 
