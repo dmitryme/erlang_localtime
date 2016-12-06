@@ -24,7 +24,7 @@ build_index() ->
    end,
    I = lists:foldl(F, dict:new(), ?tz_database),
    {ok, File} = file:open("tz_index.hrl", [write]),
-   io:fwrite(File, "-define(tz_index, ~p).", [I]).
+   io:fwrite(File, "-define(tz_index, ~p).\n", [I]).
 
 %% So this can be run from escript:
 main(_Args) ->
