@@ -188,6 +188,9 @@ adjust_datetime(DateTime, Minutes) ->
    Seconds = calendar:datetime_to_gregorian_seconds(DateTime) + Minutes * 60,
    calendar:gregorian_seconds_to_datetime(Seconds).
 
+get_timezone(TimeZone)
+  when is_binary(TimeZone) ->
+    get_timezone(binary_to_list(TimeZone));
 get_timezone(TimeZone) ->
     get_timezone_inner(TimeZone).
 
