@@ -145,15 +145,17 @@ sub process_data {
   }
 }
 
+# Converts an offset in the format "[+-]?HH:MM" or "[+-]?HH" into minutes.
+# For example, "2:00" -> 120, "-0:30" -> -30, "+5" -> 300.
 sub offset_minutes {
   my ($off, $adj) = @_;
 
   my $convert_offset = sub {
-    my $m = $_[0];
-    if ($m =~ m/^([\+\-]?)(?:(\d+):)?(\d+)$/) {
-      $m = (defined $2 ? $2 : 0) * MPH + $3;
-      if ($1 eq '-') { $m = -$m; }
-    }
+    $_[0] =~ m/^([\+\-]?)(\d+)(?::(\d+))?$/
+      or die "offset \"$_[0]\" did not match";
+    my $m = $2 * MPH;
+    if (defined $3) { $m += $3; }
+    if ($1 eq '-') { $m = -$m; }
     return $m;
   };
 
@@ -256,9 +258,13 @@ sub zone_line {
   # We ignore any zone line that has a definite until (end) time that
   # is in the past.
   if (defined $until) {
-    my $until_year = ($until =~ m/^(\d+)/)[0];
-    if ($until_year >= $current_year) {
-      die "until $until not handled";
+    my ($until_year, $until_month, $until_day) = split_ymd($until);
+    if (($until_year > $current_year) ||
+        (($until_year == $current_year) &&
+         (($until_month > $current_month) ||
+          (($until_month == $current_month) &&
+           ($until_day >= $current_day))))) {
+      "future until \"$until\" not handled";
     }
     return;
   }
@@ -286,7 +292,10 @@ sub zone_line {
     $rule1 = $rule2 = RULE_NULL;
   } elsif (scalar(@rules) == 1) {
     # One active rule.  This is a year that DST started or stopped
-    # being observed
+    # being observed.  erlang_localtime doesn't handle this.  If DST
+    # stopped being observed in this year, don't output a DST rule.
+    # If DST started being observed, do.  (Except that we don't handle
+    # this yet.)
     print STDERR Data::Dump::dump(\@rules), "\n";
     die "one rule for $name";
     $name1 = zonename($format, $rules[0]->[RULE_LETTERS], undef);
@@ -425,6 +434,23 @@ INIT {
   %mon_from_name = map { $mon_to_name[$_] => $_ } (0..$#mon_to_name);
   @dow_to_name = qw(Sun Mon Tue Wed Thu Fri Sat);
   %dow_from_name= map { $dow_to_name[$_] => $_ } (0..$#dow_to_name);
+}
+
+sub split_ymd {
+  my ($ymd) = @_;
+  $ymd =~ m/^(\d+)(?:\s+(\w+)(?:\s+(\d+)))?/
+    or die "parse \"$ymd\" for ymd failed";
+  my $year = $1;
+  my $month = do {
+    if (defined $2) {
+      defined $mon_from_name{$2} or die "parse \"$ymd\" for month failed";
+      $mon_from_name{$2};
+    } else {
+      0
+    }
+  };
+  my $day = defined $3 ? $3 : 0;
+  return ($year, $month, $day);
 }
 
 sub on_to_day_of_month {
