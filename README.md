@@ -22,17 +22,12 @@ Erlang Localtime
 
 #### Dialyzer
 
-`utc_to_local(DateTime, TimeZone) → DateTime | {error, Reason}`
-
-`local_to_utc(DateTime, TimeZone) → DateTime | {error, Reason}`
-
-`local_to_local(DateTime, TimeZoneFrom, TimeZoneTo) → DateTime | {error, Reason}`
-
-`tz_name(DateTime, TimeZone) → ZoneName | {error, Reason}`
-
-`tz_shift(DateTime, TimeZone) → 0 | ZoneShift | {error, Reason}`
-
-`tz_shift(DateTime, TimeZoneFrom, TimeZoneTo) → 0 | ZoneShift | {error, Reason}`
+* `utc_to_local(DateTime, TimeZone) → DateTime | {error, Reason}`
+* `local_to_utc(DateTime, TimeZone) → DateTime | {error, Reason}`
+* `local_to_local(DateTime, TimeZoneFrom, TimeZoneTo) → DateTime | {error, Reason}`
+* `tz_name(DateTime, TimeZone) → ZoneName | {error, Reason}`
+* `tz_shift(DateTime, TimeZone) → 0 | ZoneShift | {error, Reason}`
+* `tz_shift(DateTime, TimeZoneFrom, TimeZoneTo) → 0 | ZoneShift | {error, Reason}`
 
 #### Note
 

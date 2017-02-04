@@ -1,9 +1,10 @@
 TZDIR=tzdata
 TZ_FILES=$(addprefix $(TZDIR)/, africa antarctica asia australasia backward etcetera europe northamerica southamerica)
 
+tzout: DATE := $(shell date +%F)
 tzout: $(TZ_FILES)
 	TZ_VERSION=`perl -n -e 'm/^VERSION\s*=\s*(\S+)/ and print $$1;' $(TZDIR)/Makefile`; \
-	./tz-erl --version $$TZ_VERSION -o $@ $^
+	./tz-erl --version $$TZ_VERSION --date $(DATE) -o $@ $^
 
 $(TZ_FILES): $(TZDIR)
 
